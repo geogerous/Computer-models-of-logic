@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>作业</title>
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+ 
+  <style>
+    body {
+      background-image: url('34ac3654f8bb9514dc66cc48cb6bda85.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: repeat-y; 
+      background-size: contain; 
+    }
+    .sidebar {
+      background-color:rgb(255, 255, 255) ;
+      
+    }
+    .sidebar .nav-link {
+  font-size: 16px; 
+  color: #ff8abb;  
+}
+
+
+.sidebar  .sub-link {
+  font-size: 14px ;
+  color:  #ff8abb;  
+  }
+
+
+.sidebar .nav-item.divider-top {
+  border-top: 1px solid hsl(215, 100%, 83%);
+  margin: 10px 0
+}
+
+    .title-bar {
+      background-color: rgb(255, 209, 216); 
+    }
+    .page-content {
+      background-color: rgba(255, 255, 255, 0.4); 
+      border-radius: 4px;
+      padding: 20px;
+    }
+    .memory-cell {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #dee2e6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 2px;
+}
+.form-inline {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+    
+    .sidebar-sticky {
+      position: -webkit-sticky;
+      position: sticky;
+      top: 0;
+      height: calc(100vh - 48px);
+      padding-top: .5rem;
+      overflow-x: hidden;
+      overflow-y: auto; 
+    }
+    
+pre {
+    background-color: #f8f9fa;
+    border: 1px solid #e7e7e7;
+    padding: 15px;
+  }
+  .execution-state {
+    margin-top: 20px;
+  }
+  .active-line {
+    background-color: #dff0d8 !important;
+  }
+  .code-input {
+    min-height: 150px;
+  }
+  .divider {
+    height: 2px;
+    background-color: hsl(215, 100%, 83%);
+    
+}
+.step-container {
+        display: none;
+        margin-bottom: 15px;
+    }
+
+    .active {
+        display: block !important;
+        animation: fadeIn 1s both;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    #computer-panel {
+            width: 80%;
+            max-width: 800px;
+            height: 600px;
+            background-color: #212529;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+            margin: 5% auto;
+            position: relative;
+            color: #ffffff;
+        }
+        
+        .boot-message {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .progress-bar {
+            background-color: #000;
+        }
+
+        .progress {
+            width: 95%;
+            position: absolute;
+            bottom: 15px;
+        }
+
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+
+        #welcome-screen {
+            display: none;
+            background-color: #212529;
+            color: #ffffff;
+            font-size: 2em;
+            align-items: center;
+            text-align: center;
+            height: 100%;
+            justify-content: center;
+            display: flex;
+        }
+        .fade-enter-active, .fade-leave-active {
+      transition: opacity 0.5s ease;
+    }
+    .fade-enter, .fade-leave-to  {
+      opacity: 0;
+    }
+    .modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1040;
+    width: 600vw;
+    height: 100vh;
+    background-color: #000;
+    opacity: 0.5;
+  }
+
+  </style>
+</head>
+<body>
+
+<div id="app" class="container-fluid">
+  <div class="row title-bar">
+    <div class="col">
+      
+      <h1 class="text-center my-4">{{ pageTitle }}</h1>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-md-2 sidebar">
+      <div class="sidebar-sticky">
+        <ul class="nav flex-column">
+          <hr class="divider-solid" />
+            <li class="nav-item divider-top" v-for="(item, index) in sidebarItems" :key="index">
+                <button class="btn btn-link nav-link" @click="scrollToSection(item.href)">
+                 {{ item.text }}
+            </button>
+            
+             <!-- 子标题的嵌套列表 -->
+          <ul v-if="item.subsections" class="nav flex-column ml-3">
+            <li class="nav-item" v-for="(sub, subindex) in item.subsections" :key="subindex">
+              <button class="btn btn-link  sub-link" @click="scrollToSection(sub.href)">
+                {{ sub.text }}
+              </button>
+            </li>
+          </ul>
+          
+        </ul>
+      </div>
+    </div>
+    
+    <div class="col-md-10">
+        
+        <div class="page-content" id="section1">
+            <h2>二进制演示</h2> 
+        </div>
+        <div class="page-content" id="section1-1">
+          
+          <h3>整数的二进制演示</h3>
+          <p>请输入一个整数，查看其二进制原码与补码</p>
+          <div class="input-group mb-3">
+            <input v-model.number="number" type="number" class="form-control" placeholder="输入一个整数">
+            <div class="input-group-append">
+              <button @click="calculateBinary()" class="btn btn-outline-secondary" type="button">原码</button>
+              <button @click="calculateTwosComplement()" class="btn btn-outline-secondary" type="button">补码</button>
+            </div>
+          </div>
+          <div v-if="binaryResult">
+            <p>原码: {{ binaryResult }}</p>
+          </div>
+          <div v-if="twosComplementResult">
+            <p>补码: {{ twosComplementResult }}</p>
+          </div>
+          <h5>原理</h5>
+          
+          <p>对于正整数，直接将其转换为二进制数即可。</p>
+            <p>对于负整数，先转换其绝对值为二进制数，然后求补码。</p>
+
+            <p>原码：</p>
+            <p>原码是最直观的二进制表示法，原码最左边的一个数字是符号位，正数的原码是其本身，负数的原码在最高位（符号位）加1，其余位表示该数的绝对值。</p>
+
+            <p>补码：</p>
+            <p>补码是计算机中用于表示整数的常用方法。正数的补码与其原码相同，负数的补码是其原码的逐位取反（除了符号位）后加1。</p>
+            
+            
+            
+        </div>
+        <div class="divider"></div>
+        <div class="page-content" id="section1-2">
+          <h3>浮点数的二进制演示</h3>
+          <p>请输入一个浮点数，查看其IEEE 754标准的二进制表示</p>
+          <div class="input-group mb-3">
+          <input type="text" v-model="floatNumber" class="form-control" placeholder="输入一个浮点数">
+          <div class="input-group-append">
+          <button @click="calculateFloatBinary()" class="btn btn-outline-secondary" type="button">转换</button>
+        </div>
+    </div>
+          <p v-if="floatBinaryResult">浮点数的IEEE 754表示: {{ floatBinaryResult }}</p>
+        
+        <h5>原理</h5>
+          <p>浮点数转换为二进制的原理基于IEEE 754标准。这个标准定义了浮点数在计算机中的表示方式、舍入规则、异常处理等。所谓的浮点数，是因为小数点可以像浮动一样移动，使用科学记数法来表示非常大或非常小的数。
+          IEEE 754标准通常定义了几种不同的精度，比如单精度（32位）和双精度（64位）浮点数。</p>
+          <p>符号位（1位）：最左边的一位是符号位，0表示正数，1表示负数。</p>
+          <p>指数位（8位）：接着是8位的指数部分，用来存储指数。这8位不是直接存储指数的实际值，而是存储指数值加上一个偏移（对于32位浮点数，这个偏移是127）。这样可以表示正指数和负指数。</p>
+          <p>尾数或有效位（23位）：剩下的23位是尾数，它用二进制表示小数点后面的数字。这23位没有包括小数点前面的整数部分，因为标准假设除非尾数是0，否则小数点前的数字总是1（这称为规格化），因此可以省略并在解码时隐式添加。</p>
+          <p>IEEE 754转换的大致步骤：</p>
+          <p>1,计算绝对值的二进制：先计算浮点数绝对值的二进制形式。</p>
+          <p>2,规格化：将这个二进制数转换成科学记数法，以1.xxxxx的形式表示。</p>
+          <p>3,计算指数bias：细节随精度变化，对于单精度浮点数，bias是127。</p>
+          <p>4,计算与存储真实指数：指数加上bias得到用于存储的指数。</p>
+          <p>5,存储尾数：去掉规格化步骤中的“1”，剩下的部分作为尾数存储。</p>
+        </div>
+        <div class="divider"></div>
+        <div class="page-content" id="section1-3">
+            <h3>指令集设计原理演示</h3>
+            <p>指令集设计原理是计算机体系结构中的一个核心概念，它定义了一组指令，这些指令规定了计算机能够理解和执行的操作。指令集架构（ISA）包括基本数据类型、指令集、寄存器、寻址模式、存储体系、中断、异常处理以及外部I/O等</p>
+
+        
+        <div class="row mb-3">
+          <div class="col-md-12">
+          <div class="d-flex justify-content-between mb-3">
+            <button class="btn btn-outline-secondary" @click="prevMap">上一个</button>
+            <button class="btn btn-outline-secondary" @click="nextMap">下一个</button>
+          </div>
+          <transition name="fade" mode="out-in">
+            <img :key="currentMap.id" :src="currentMap.src" class="img-fluid" alt="思维导图">
+          </transition>
+        </div>
+        </div>
+        
+        
+    <h5>原理</h5>
+    <p>在设计指令集时，需要考虑多个方面，包括：</p>
+      <p>1，指令的功能：指令集应该包含足够的指令来执行所有必要的操作，如数据传输、算术运算、逻辑运算、控制流等。</p>
+      <p>2，指令的格式：指令的编码应该简洁且易于解码，同时还要考虑指令长度的一致性和灵活性。</p>
+      <p>3，寄存器的使用：寄存器是有限的资源，指令集设计应该高效利用寄存器，同时提供足够的寄存器来支持常见的操作。</p>
+      <p>4，寻址模式：指令集应该提供多种寻址模式，以支持不同的数据访问需求。</p>
+      <p>5，性能与复杂性：设计者需要在指令集的性能和硬件实现的复杂性之间找到平衡点。</p>
+      <p>6，兼容性：新设计的指令集通常需要考虑与旧指令集的兼容性，特别是在更新现有系统时。</p>
+
+</div>
+
+<div style="height: 20px; background-color: hsl(215, 100%, 83%);"></div> 
+   
+    <div class="page-content" id="section2">
+        
+            <h2>基于内存的计算机模型演示</h2> 
+            </div>
+       
+
+    
+      <!-- 内存模型 -->
+      <div class="page-content" id="section2-1">
+        <div class="row">
+          <div v-for="value in memory" 
+               v-bind:key="value.address" 
+               class="memory-cell col-1">
+            {{ value.data }}
+          </div>
+        </div>
+        <div class="form-inline mt-2">
+          <input type="number" v-model.number="inputAddress" class="form-control mr-2" placeholder="Address (0-255)" min="0" max="255">
+          <input type="text" v-model="inputData" class="form-control mr-2" placeholder="Data (00-FF)">
+          <button v-on:click="writeMemory" class="btn  btn-outline-secondary">写入内存</button>
+        </div>
+      
+    </div>
+  
+      <!-- 开机过程模型 -->
+      <div class="page-content" id="section2-2">
+      <h3>开机过程</h3>
+      <button @click="bootProcess()" class="btn btn-outline-secondary" type="button">开机</button>
+      <div id="computer-panel">
+        
+            
+            <div v-show="!welcomeScreen">
+                <div v-for="(message, index) in bootMessages" :key="index" class="boot-message" v-html="message">{{ message }}</div>
+                <div class="spinner-border text-info" role="status" v-if="currentStep < bootSteps.length"></div>
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" :style="{ width: progressPercentage + '%' }">{{ progressText }}</div>
+                </div>
+            </div>
+
+            
+            <div v-show="welcomeScreen" id="welcome-screen">
+                Welcome to your computer
+            </div>
+       
+    </div>
+    <!-- 触发模态框-->
+  <button type="button" class="btn btn-outline-secondary" @click="showModal = true">x86计算机开机</button>
+
+ 
+ 
+  
+  <div v-if="showModal" class="modal" tabindex="-1" role="dialog" style="display: block;max-width: 800px">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">x86计算机开机</h5>
+          <button type="button" class="close" @click="showModal = false" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <iframe src="demo5.html" style="width:100%;height:500px;"></iframe>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" @click="showModal = false">关闭</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  
+  
+  <div v-if="showModal" class="modal-backdrop" @click="showModal = false"></div>
+      
+      
+    </div>
+    <div class="divider"></div>
+  
+      <!-- 内存编址和分段 -->
+      <div class="page-content" id="section2-3">
+      <h3>内存编址和分段</h3>
+      <p>
+        线性和物理地址空间：操作系统管理的内存可以分为逻辑（或虚拟）内存和物理内存。物理内存对应电脑中实际的RAM芯片，而逻辑内存是操作系统为应用程序提供的一种抽象层，使得每个程序都好像在使用一大块连续的内存。</p>
+
+        <p>内存分段：这是一种内存管理技术，它将内存分为不同的逻辑段，每个段可以是代码、数据或栈。每个段由段基址（Start address of the segment）和偏移量（An offset into that segment）组成。访问内存时，真实的物理地址是用段基址加上偏移量计算出来的。</p>
+        <p>内存分页：这是现代操作系统常用的内存管理方式，它通过把虚拟内存和物理内存都分割成固定大小的页来管理内存。每个虚拟页会被映射到物理内存的页框架中（不一定要是连续的）。</p>
+        <p>寻址方式：计算机在访问内存时采用了不同的寻址方式。最常见的是直接和间接寻址。直接寻址是指指令直接包含内存地址或偏移量；间接寻址则是指指令指向寄存器或内存中的地址，而这个地址中存储了实际数据的地址。</p>
+        <p>寻址范围与寻址能力：处理器的寻址范围通常称为它的寻址能力，对于32位处理器，它可以直接寻址到4GB的内存（ 个不同的地址）。64位处理器可以寻址更大的内存空间。</p>
+        <h5>分段演示</h5>
+      <form @submit.prevent="translateAddress">
+        <div class="form-group">
+            <label for="segSelector">段选择器:</label>
+            <input type="text" class="form-control" id="segSelector" v-model="segSelector" required>
+        </div>
+        <div class="form-group">
+            <label for="offset">偏移量:</label>
+            <input type="text" class="form-control" id="offset" v-model="offset" required>
+        </div>
+        <button type="submit" class="btn btn-outline-secondary">地址转换</button>
+    </form>
+
+    <h3 class="mt-4">段表</h3>
+    <table class="table">
+        <thead class="thead-light">
+            <tr>
+                <th scope="col">段</th>
+                <th scope="col">基址</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="entry in segmentTable" :key="entry.seg">
+                <td>{{ entry.seg }}</td>
+                <td>{{ entry.base }}</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <h3 class="mt-4">转换结果</h3>
+    <p v-if="translationError" class="text-danger">{{ translationError }}</p>
+    <p v-else>物理地址: {{ physicalAddress }}</p>
+    </div>
+    <div class="divider"></div>
+
+  
+      <!-- 处理器和I/O演示 -->
+      <div class="page-content" id="section2-4">
+      <h3>处理器计算和I/O过程</h3>
+      <h5 >CPU模拟器</h5>
+    <div class="form-group">
+        <label for="programInput">代码</label>
+        <textarea class="form-control" id="programInput" v-model="program" rows="10"></textarea>
+    </div>
+    <button class="btn btn-outline-secondary" @click="loadProgram">加载程序</button>
+    <button class="btn btn-outline-secondary" @click="runProgram">运行程序</button>
+    <div v-if="output.length">
+        <h5>输出</h5>
+        <pre>{{ output }}</pre>
+    </div>
+    <h5 >I/O过程</h5>
+    <img src="4111512f147f43f7a843a50c087720e5.jpeg" style="width: 600px;height:  auto;" alt="思维导图">
+    <img src="v2-f36df5ca2785645c05c438ed3df0ad4f_r.jpg" style="width: 600px;height:  auto;" alt="IO图片">
+    <div class="col-md-12">
+    <button @click="startIODemonstration" class="btn btn-outline-secondary mt-3">
+      开始
+  </button>
+
+  <div v-for="(IOstep, index) in IOsteps" :key="index" :ref="`IOstep${index}`":class="{ 'step-container': true, 'active': index <= currentIOStep }">
+      <div class="card">
+          <div class="card-body">
+              <h5 class="card-title">{{ IOstep.title }}</h5>
+              <p class="card-text">{{ IOstep.description }}</p>
+          </div>
+      </div>
+      
+      </div>
+      
+
+
+  </div>
+      
+    <div style="height: 20px; background-color: hsl(215, 100%, 83%);"></div> 
+    <div class="page-content" id="section3">
+        <h2>"JUMP"基本流程模块</h2> 
+        
+    
+        <div class="row my-4">
+          <div class="col-md-6">
+          <h4 class="mt-4 mb-4">汇编指令模拟器</h4>
+    
+          <div class="btn-group mb-3" role="group" aria-label="Code examples">
+              <button type="button" class="btn btn-secondary" @click="loadCode('sequence')">顺序执行</button>
+              <button type="button" class="btn btn-secondary" @click="loadCode('branch')">分支</button>
+              <button type="button" class="btn btn-secondary" @click="loadCode('loop')">循环</button>
+          </div>
+      
+          <div class="form-group">
+              <textarea v-model="code" class="form-control mb-3" rows="15" placeholder="输入汇编指令..."></textarea>
+          </div>
+      
+          <div class="row mb-3">
+              <div class="col-12">
+                  <button @click="runNextInstruction" class="btn btn-outline-secondary">逐行执行</button>
+                  <button @click="resetSimulation" class="btn btn-secondary ml-2">重置</button>
+              </div>
+          </div>
+        </div>
+        </div>
+          
+              <div class="col-12">
+                  <h5>寄存器状态</h5>
+                  <table class="table table-bordered">
+                      <thead>
+                          <tr>
+                              <th scope="col">寄存器</th>
+                              <th scope="col">值</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                          <tr v-for="(value, register) in registers">
+                              <td>{{ register }}</td>
+                              <td>{{ value }}</td>
+                          </tr>
+                      </tbody>
+                  </table>
+              </div>
+          
+              
+            </div>  
+            <div style="height: 20px; background-color: hsl(215, 100%, 83%);"></div>
+
+    <div class="page-content" id="section4">
+   
+        <h2>高级语言到二进制代码编译过程</h2>
+        <div style="height: 20px;"></div>
+        <div class="col-12 mb-3">
+           
+  <div class="mb-3">
+    <h5>源代码:</h5>
+    <textarea v-model="sourceCode" class="form-control" rows="8" ></textarea>
+  </div>
+
+  
+  <div class="mb-3">
+    <h5>词法分析结果:</h5>
+    <pre class="border p-2">{{ lexicalAnalysis }}</pre>
+  </div>
+
+ 
+  <div class="mb-3">
+    <h5>语法分析结果:</h5>
+    <pre class="border p-2">{{ syntaxAnalysis }}</pre>
+  </div>
+
+
+  <div class="mb-3">
+    <h5>语义分析结果:</h5>
+    <pre class="border p-2">{{ semanticAnalysis }}</pre>
+  </div>
+
+
+  <div class="mb-3">
+    <h5>中间代码生成结果:</h5>
+    <pre class="border p-2">{{ intermediateCode }}</pre>
+  </div>
+
+ 
+  <div class="mb-3">
+    <h5>代码优化和目标代码生成结果:</h5>
+    <pre class="border p-2">{{ targetCode }}</pre>
+  </div>
+
+  <div class="mb-3">
+    <h5>二进制代码生成结果:</h5>
+    <pre class="border p-2">{{ machineCode }}</pre>
+  </div>
+
+  
+  <button @click="compile" type="button" class="btn btn-outline-secondary">编译</button>
+</div>
+        </div>
+        <div class="page-content" id="section4-1">
+        <h3>具有运行时环境（如JRE）的代码运行过程演示</h3>
+        <button @click="startDemonstration" class="btn btn-outline-secondary mt-3">
+            开始
+        </button>
+    
+        <div v-for="(step, index) in steps" :key="index" :ref="`step${index}`":class="{ 'step-container': true, 'active': index <= currentStep }">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ step.title }}</h5>
+                    <p class="card-text">{{ step.description }}</p>
+                </div>
+            </div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+      </div>
+      
+    </div>
+  </div>
+</div>
+  
+   
+
+       
+        
+      </div>
+  </div>
+</div>
+
+<!-- Vue.js 和 Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.11/dist/vue.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.7.12/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+  class SimpleCPU {
+    constructor() {
+        this.memory = [];
+        this.registers = new Array(32).fill(0); 
+        this.output = [];
+
+    }
+
+    run() {
+        for (let i = 0; i < this.memory.length; i++) {
+            const line = this.memory[i];
+            const parts = line.split(' ');
+            const instruction = parts[0];
+            
+            switch (instruction) {
+                case 'ADD':
+                    const regNum = Number(parts[1]);
+                    const value = Number(parts[2]);
+                    this.registers[regNum] += value;
+                    break;
+                case 'PRNT':
+                    const regToPrint = Number(parts[1]);
+                    this.output.push(`R${regToPrint}: ${this.registers[regToPrint]}`);
+                    break;
+                case 'HALT':
+                    return;
+                default:
+                    this.output.push(`Unknown instruction: ${instruction}`);
+                    return;
+            }
+        }
+    }
+}
+  new Vue({
+    el: '#app',
+    data: {
+      pageTitle: 'DEMONSTRATION',
+      sidebarItems: [
+      {
+        text: '二进制演示',
+        href: 'section1',
+        subsections: [
+        { text: '整数的二进制演示', href: 'section1-1' },
+        { text: '浮点数的二进制演示', href: 'section1-2' },
+        { text: '指令集设计原理', href: 'section1-3' }
+        ]
+      },
+      {
+        text: '基于内存的计算机模型演示',
+        href: 'section2',
+        subsections: [
+        { text: '内存模型', href: 'section2-1' },
+        { text: '开机过程', href: 'section2-2' },
+        { text: '内存编址和分段', href: 'section2-3' },
+        { text: '处理器计算和I/O过程', href: 'section2-4' }
+
+
+        ]
+      },
+        { text: '"JUMP"基本流程模块', href: 'section3' ,
+       
+    
+    },
+
+
+        { text: '高级语言到二进制代码编译过程', href: 'section4',
+        subsections: [
+        { text: '具有运行时环境（如JRE）的代码运行过程演示', href: 'section4-1' } ]},
+       
+        
+
+        
+      ],
+        number: null,
+        binaryResult: null,
+        twosComplementResult: null,
+        floatNumber: null,
+        floatBinaryResult: null,
+        newComponent: '',
+       
+       
+    
+    selectedComponentIndex: -1,
+    isaComponents: [/* ... */],
+    
+    memory: Array.from({ length: 256 }, (_, address) => ({ address, data: '00' })),
+    inputAddress: 0,
+    inputData: '00',
+    code: '',
+    currentLine: 0,
+    registerState: {},
+    memoryState: {},
+    sourceCode: '',
+    compiledCode: '',
+    runtimeOutput: '',
+   
+      segSelector: '',
+            offset: '',
+            physicalAddress: 'N/A',
+            translationError: null,
+            segmentTable: [
+            { seg: '001', base: '0x10000' },
+            { seg: '002', base: '0x20000' },
+            { seg: '003', base: '0x30000' },
+            { seg: '004', base: '0x40000' },
+            { seg: '005', base: '0x50000' },
+  ],
+  program: `ADD 0 5\nADD 1 10\nPRNT 0\nPRNT 1\nHALT`,
+        output: '',
+        cpu: new SimpleCPU() ,
+        code: '',
+        registers: {
+            x0: 0,
+            x1: 0,
+            x2: 0,
+            pc: 0, 
+        },
+        programEnded: false,
+        codeLines: [],
+        sourceCode: '// 这里是Java源代码示例\npublic class SimpleJava {\n    public static void main(String[] args) {\n        int result = 10 + 20;\n        System.out.println(result);\n    }\n}',
+      lexicalAnalysis: '',
+      syntaxAnalysis: '',
+      semanticAnalysis: '',
+      intermediateCode: '',
+      targetCode: '',
+      machineCode: '',
+      currentStep: -1,
+      currentIOStep: -1,
+      IOsteps: [
+      {title: '用户空间与内核空间', description: '计算机的内存空间被分为用户空间和内核空间。用户空间是用户程序运行的地方，而内核空间是操作系统内核代码运行的地方。用户程序不能直接访问硬件设备，它们通过系统调用请求操作系统在内核空间中执行I/O操作。'},
+                {title: '系统调用', description: `当用户程序需要进行I/O操作时，它会发起一个系统调用，这个调用会将控制权从用户空间转移到内核空间。`},
+                {title: '设备控制器', description: '设备控制器是硬件，负责管理特定类型的外部设备。它有一组特殊目的寄存器，用于存储数据和控制信息。'},
+                {title: '设备驱动程序', description: '设备驱动程序是操作系统的一部分，它知道如何与设备控制器通信，并执行具体的I/O操作。'},
+                {title: 'I/O操作', description: '内核空间中的设备驱动程序会向设备控制器发送命令，控制器会对设备进行操作（如读取或写入数据）。'},
+                {title: '数据传输', description: ' 数据可以通过两种方式在设备和内存之间传输：程序控制输入输出（Programmed I/O, PIO）和直接内存访问（Direct Memory Access, DMA）。PIO方式下，CPU负责数据的传输；而DMA方式下，设备控制器直接与内存交换数据，无需CPU介入。'},
+                {title: '中断和轮询', description: '设备完成操作后，会通过中断信号通知CPU，或者CPU通过轮询设备状态寄存器来检查操作是否完成。'},
+                {title: '数据拷贝', description: '一旦数据在设备和内核缓冲区之间传输完成，操作系统会将数据从内核缓冲区拷贝到用户空间，供用户程序使用。'},
+                
+
+],
+            steps: [
+                {title: 'step.1,编写源代码', description: '例如，有一个SimpleJava.java文件。'},
+                {title: 'step.2,编译源代码', description: `Java编译器javac将SimpleJava.java源文件编译成Java字节码（.class文件）。\n这将生成一个SimpleJava.class文件，它包含Java字节码。`},
+                {title: 'step.3,加载字节码', description: '使用java命令SimpleJava，JRE首先加载SimpleJava.class文件。\nJava类加载器负责将.class文件加载到JVM内存中。'},
+                {title: 'step.4,验证字节码', description: '加载后，字节码被验证，确保符合Java规范，没有安全问题。'},
+                {title: 'step.5,执行字节码', description: '字节码验证通过后，JVM的解释器开始执行程序。\n如果一段代码被频繁执行，它可能被JVM的JIT（Just-In-Time）编译器编译成本地机器码以提高效率。'},
+                {title: 'step.6,运行时环境', description: ' JVM管理运行时环境，包括内存分配、垃圾回收等。当main方法被调用时，JVM创建一个初始线程以执行它。'},
+                {title: 'step.7,代码执行', description: '程序指令逐条执行。'},
+                {title: 'step.8,系统调用', description: '执行到System.out.println(result)时，JVM会进行系统调用，通过本地方法接口（JNI）来调用底层操作系统提供的功能打印结果到控制台。'},
+                {title: 'step.9,程序结束', description: 'main方法执行完毕后程序结束，JVM退出。'}
+      ],
+         
+      bootSteps: [
+                "电源自检 (POST)...<br>//CPU复位，并开始在BIOS中预定义的地址0xFFFFFFF0处执行代码。<br>对计算机的硬件进行检查，(包括内存、驱动器和外部设备)",
+        "BIOS识别...<br> //BIOS（基本输入输出系统）识别并初始化系统设备。(显卡、硬盘和其他硬件)",
+        "启动设备顺序(Boot Priority)...<br>//BIOS检查启动顺序，以确定从哪个设备上启动系统。<br>通常情况下是硬盘，但也可以是CD/DVD、USB设备或网络位置。",
+        "引导加载程序（Bootloader）...<br>//BIOS查找并执行找到的可引导设备上的Bootloader。<br>在x86架构中，Bootloader代码位于可引导存储设备开始的地方的主引导记录（MBR）中。",
+        "操作系统核心加载(OS Kernel Loading)...<br>//Bootloader加载操作系统。<br>对于Windows或Linux，分别加载相应的内核及必要组件。",
+        "控制权转移...<br>//Bootloader将控制权交给操作系统的内核。内核继续将其他组件加载到内存中，<br>包括硬件抽象层(HAL)、驱动程序，并初始化所有系统进程。",
+        "用户界面(User Interface)...<br>//图形用户界面(GUI)被加载，欢迎用户使用。"
+                    
+                ],
+                bootMessages: [],
+                currentStep: 0,
+                welcomeScreen: false,
+                maps: [
+        {id: 1, src: 'capture_20240325234757172.bmp'},
+        {id: 2, src: 'capture_20240325234819840.bmp'},
+        {id: 3, src: '20200811054258855.png'},
+        {id: 4, src: 'capture_20240325235016630.bmp'},
+        {id: 5, src: 'capture_20240325235409373.bmp'},
+        {id: 6, src: '20200811025429869.png'},
+        
+      ],
+      currentIndex: 0 ,
+      showModal: false
+
+
+      
+    },
+
+computed: {
+    highlightActiveLine() {
+      const lines = this.code.split('\n');
+      return lines.map((line, index) => {
+        if (index === this.currentLine) {
+          return '<div class="active-line">' + line + '</div>';
+        }
+        return line;
+      }).join('\n');
+    },
+    progressPercentage() {
+                    return (this.currentStep / this.bootSteps.length) * 100;
+                },
+                progressText() {
+                    return Math.min(Math.floor(this.progressPercentage), 100) + '%';
+                },
+                currentMap: function () {
+        return this.maps[this.currentIndex];
+      }
+
+  },
+    methods: {
+      scrollToSection(href) {
+        const section = document.getElementById(href);
+        if (section) {
+          section.scrollIntoView({ behavior: "smooth" });
+        }
+      },
+      calculateBinary() {
+        // 实现将 this.number 转换为二进制原码
+        this.binaryResult = this.number.toString(2);
+      },
+      calculateTwosComplement() {
+        // 实现将 this.number 转换为二进制补码
+        if (this.number < 0) {
+          this.twosComplementResult = (~this.number).toString(2);
+          this.twosComplementResult = (parseInt(this.twosComplementResult, 2) + 1).toString(2);
+        } else {
+          this.twosComplementResult = this.number.toString(2);
+        }
+      },
+      calculateFloatBinary() {
+        
+      const floatNum = parseFloat(this.floatNumber);
+      if (isNaN(floatNum)) {
+        return '无效的输入';
+    }
+
+    const getSign = (n) => n >= 0 ? '0' : '1';
+    const sign = getSign(floatNum);
+
+    const buffer = new ArrayBuffer(4);
+    const view = new DataView(buffer);
+    view.setFloat32(0, floatNum);
+
+     this.floatBinaryResult = sign + " ";
+    for (let i = 1; i < buffer.byteLength * 8; i++) {
+        if (i === 9) {
+          this.floatBinaryResult += " "; 
+        }
+        this.floatBinaryResult += ((view.getUint32(0) >>> (31 - i)) & 1).toString();
+    }
+    
+},
+
+     nextMap: function () {
+        this.currentIndex = (this.currentIndex + 1) % this.maps.length;
+      },
+      prevMap: function () {
+        this.currentIndex = (this.currentIndex + this.maps.length - 1) % this.maps.length;
+      },
+        
+    readMemory() {
+      
+      this.memoryContent = this.memory[this.address];
+      alert(`在地址 ${this.address} 的内存内容是：${this.memoryContent}`);
+    },
+    compute() {
+     
+      alert('执行一个计算操作...');
+      
+    },
+    ioProcess() {
+      
+      alert('执行I/O操作...');
+      
+    },
+   
+    loadCode(type) {
+            const examples = {
+                'sequence': `MOV x0, 1\nMOV x1, 2\nADD x2, x0, x1 ; x2 = 1 + 2\nEND\n`,
+                'branch': `MOV x0, 0\nMOV x1, 10\nJUMPZ x0, LABEL_ZERO ; 如果 x0 = 0 则跳转到 LABEL_ZERO\nADD x1, x1, 5 ; 否则 x1 = x1 + 5\nJUMP END\nLABEL_ZERO:\nMOV x1, -10\nEND\n`,
+                'loop': `MOV x0, 5\nLOOP:\nSUB x0, x0, 1 ; x0 = x0 - 1\nJUMPZ x0, END ; 如果 x0 = 0 则跳出循环\nJUMP LOOP ; 否则，跳转回 LOOP 开始新的循环迭代\nEND\n`,
+            };
+            this.code = examples[type] || '';
+            this.resetSimulation();
+        },
+        parseCode() {
+            this.codeLines = this.code.split('\n');
+            this.registers.pc = 0;
+            this.programEnded = false;
+        },
+        resetSimulation() {
+            this.registers = {x0: 0, x1: 0, x2: 0, pc: 0};
+            this.parseCode();
+        },
+        runNextInstruction() {
+            if (this.programEnded || this.registers.pc >= this.codeLines.length) {
+                this.programEnded = true;
+                return;
+            }
+            let currentLine = this.codeLines[this.registers.pc].trim();
+            let parts = currentLine.split(/\s+/);
+            let opcode = parts[0].toUpperCase();
+            let operands = parts.slice(1);
+
+            if (opcode !== '' && opcode !== ':' && opcode !== 'END') {
+                this.executeInstruction(opcode, operands);
+                this.registers.pc++;
+            }
+            while (this.codeLines[this.registers.pc]?.trim() === '' || this.codeLines[this.registers.pc]?.trim().endsWith(':')) {
+               this.registers.pc++; 
+            }
+
+            if (this.codeLines[this.registers.pc]?.trim() === 'END') {
+                this.programEnded = true;
+            }
+        },
+        executeInstruction(opcode, operands) {
+            switch(opcode) {
+                case 'MOV':
+                    this.registers[operands[0]] = parseInt(operands[1]);
+                    break;
+                case 'ADD':
+                    this.registers[operands[0]] = this.registers[operands[1]] + this.registers[operands[2]];
+                    break;
+                case 'SUB':
+                    this.registers[operands[0]] = this.registers[operands[1]] - parseInt(operands[2]);
+                    break;
+                case 'JUMPZ':
+                    if (this.registers[operands[0]] === 0) {
+                        this.jumpToLabel(operands[1]);
+                    }
+                    break;
+                case 'JUMP':
+                    this.jumpToLabel(operands[0]);
+                    break;
+                case 'END':
+                    this.programEnded = true;
+                    break;
+                default:
+                    console.error('Unknown opcode:', opcode);
+                    this.programEnded = true;
+            }
+        },
+        jumpToLabel(label) {
+            let labelIndex = this.codeLines.findIndex(line => line.includes(label + ':'));
+            if (labelIndex !== -1) {
+                this.registers.pc = labelIndex; 
+            } else {
+                console.error('Label not found:', label);
+                this.programEnded = true;
+            }
+        },
+    compileCode() {
+            
+            const lines = this.sourceCode.trim().split('\n');
+            const bytecode = lines.map(line => {
+                if (line.startsWith('print ')) {
+                    return 'PRNT ' + line.substring(6);
+                }
+                return 'UNKNOWN';
+            }).join('\n');
+            this.compiledCode = bytecode;
+        },
+        runCode() {
+            
+            const instructions = this.compiledCode.split('\n');
+            this.runtimeOutput = instructions.map(instruction => {
+                const [opcode, operand] = instruction.split(' ');
+                if (opcode === 'PRNT') {
+                    return operand;
+                }
+                return 'Error: 未知的指令';
+            }).join('\n');
+        },
+        translateAddress() {
+                const segmentEntry = this.segmentTable.find(entry => entry.seg === this.segSelector);
+                if (segmentEntry) {
+                    this.physicalAddress = this.calculatePhysicalAddress(segmentEntry.base, this.offset);
+                    this.translationError = null;
+                } else {
+                    this.physicalAddress = 'N/A';
+                    this.translationError = 'Error: Segment not found.';
+                }
+            },
+            calculatePhysicalAddress(base, offset) {
+               
+                const baseNum = parseInt(base, 16);
+                const offsetNum = parseInt(offset, 16);
+                if (isNaN(baseNum) || isNaN(offsetNum)) {
+                    this.translationError = 'Error: Invalid input.';
+                    return 'N/A';
+                }
+                const physicalAddrNum = baseNum + offsetNum; 
+                return "0x"+physicalAddrNum.toString(16).toUpperCase();
+            },
+            loadProgram() {
+            this.cpu.memory = this.program.split('\n');
+            this.output += 'Program loaded into memory!\n';
+        },
+        runProgram() {
+            this.cpu.run();
+            this.output += this.cpu.output.join('\n'); 
+        },
+        compile() {
+       
+        this.lexicalAnalysis = 'public, class, SimpleJava, {, public, static, void, main, (, String, [, ], args, ), {, int, result, =, 10, +, 20, ;, System, ., out, ., println, (, result, ), ;, }, }';
+        
+        this.syntaxAnalysis = `ClassDeclaration
+    Modifier: public
+    Name: SimpleJava
+    MethodDeclaration
+        Modifier: public static
+        ReturnType: void
+        Name: main
+        Parameters: 
+            Parameter: String[] args
+        Block
+            VariableDeclaration
+                Type: int
+                Name: result
+                Expression: 
+                    BinaryExpression
+                        Left: 10
+                        Operator: +
+                        Right: 20
+            MethodCall
+                Object: System.out
+                Method: println
+                Arguments: result`;
+        
+        
+        this.semanticAnalysis = `语义分析通过: 所有变量和方法都已正确定义。\n类型检查有效。\n加法操作和println方法调用有效。`;
+        
+       
+        this.intermediateCode = `0: bipush        10
+2: bipush        20
+4: iadd
+5: istore_1
+6: getstatic     #System.out:PrintStream
+9: iload_1
+10: invokevirtual #PrintStream.println:(I)V`;
+        
+        
+        this.targetCode = `; 假设result变量存储在寄存器eax中
+mov eax, 10 ; 将10赋值给eax
+add eax, 20 ; 将20加到eax中，现在eax == 30
+
+; 假设printf函数用来打印到控制台，并且接受一个整数作为参数
+; 此外，假设printf的参数是通过堆栈传递的
+push eax ; 将eax的值压入堆栈，作为printf的参数
+call printf ; 调用printf函数打印30
+
+`;
+
+        
+        this.machineCode = '0110 1010 0000 1010......';
+      },
+      startDemonstration() {
+        this.currentStep = -1;
+
+
+let baseDelay = 600;
+
+
+this.steps.forEach((_, index) => {
+    setTimeout(() => {
+        this.currentStep = index;
+
+        this.$nextTick().then(() => {
+            let stepElement = this.$refs[`step${index}`][0];
+            if(stepElement) {
+                stepElement.scrollIntoView({ behavior: "smooth", block: "end" });
+            }
+        })
+        
+    }, baseDelay * (index + 1));
+});
+},
+startIODemonstration() {
+        this.currentIOStep = -1;
+
+
+let baseDelay = 600;
+
+
+this.IOsteps.forEach((_, index) => {
+    setTimeout(() => {
+        this.currentIOStep = index;
+
+        
+        this.$nextTick().then(() => {
+            let IOstepElement = this.$refs[`IOstep${index}`][0];
+            if(IOstepElement) {
+                IOstepElement.scrollIntoView({ behavior: "smooth", block: "end" });
+            }
+        })
+        
+    }, baseDelay * (index + 1));
+});
+},
+bootProcess() {
+                    if (this.currentStep < this.bootSteps.length) {
+                        this.bootMessages.push(this.bootSteps[this.currentStep]);
+                        this.currentStep++;
+                        setTimeout(this.bootProcess, 2000);
+                    } else {
+                        this.progressText = '100%';
+                        setTimeout(this.showWelcomeScreen, 1000);
+                    }
+                },
+                showWelcomeScreen() {
+                    this.welcomeScreen = true;
+                },
+                writeMemory: function() {
+      const formattedData = this.inputData.padStart(2, '0').toUpperCase();
+      if (this.inputAddress >= 0 && this.inputAddress < this.memory.length && /^[0-9A-F]{2}$/i.test(formattedData)) {
+        Vue.set(this.memory, this.inputAddress, { address: this.inputAddress, data: formattedData });
+      } else {
+        alert('Please enter a valid address and data (00-FF).');
+      }
+    }
+
+  } ,
+ 
+});
+</script>
+
+</body>
+</html>
